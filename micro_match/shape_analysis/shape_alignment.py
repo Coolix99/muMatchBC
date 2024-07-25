@@ -78,8 +78,8 @@ class ICP:
 
     def __call__(self, x, rigid=True):
         mesh = vp.Mesh([x, None])
-        mesh.alignTo(self.__template, rigid=rigid)
-        return mesh.points()
+        mesh.align_to(self.__template, rigid=rigid)
+        return mesh.vertices
 
 
 @memory.cache

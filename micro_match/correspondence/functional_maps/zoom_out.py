@@ -22,7 +22,7 @@ class fast_assigment_functor:
     def __call__(self, C):
         P_dense = fm.soft_correspondence(self.src, self.dst, C)
         P_sparse = np.transpose(self.reduce(P_dense[self.i_src].T)).astype(
-            np.float3232
+            np.float32
         )
         a, b = linear_sum_assignment(P_sparse, maximize=True)
         return self.i_src[a], self.i_dst[b]
