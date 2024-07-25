@@ -19,7 +19,7 @@ class SignaturesDataset(Dataset):
         ]
 
     def pruneIndices(self, number, target):
-        return np.linspace(0, number, target, endpoint=False).astype(np.int)
+        return np.linspace(0, number, target, endpoint=False).astype(np.int64)
 
     def __len__(self):
         return len(self.names)

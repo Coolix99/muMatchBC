@@ -39,16 +39,21 @@ class EnsembleTrainer:
     def train(self, number_epochs):
         best_loss = float('inf')
         for epoch in range(number_epochs):
+            loss = None  # Initialize loss variable
             for x, y in pairwise(self.dataloader):
                 try:
                     loss = self.train_step(x, y)
                 except Exception as e:
                     print(f"Error caught: {e}")
-            if epoch % 10 == 0:
+                    continue  # Skip the current iteration and move to the next pair
+
+            if epoch % 10 == 0 and loss is not None:  # Ensure loss is defined
                 print(f"Epoch {epoch}, Loss: {loss.item()}")
-            if loss < best_loss:
+
+            if loss is not None and loss < best_loss:  # Ensure loss is defined
                 best_loss = loss
                 torch.save(self.func.state_dict(), os.path.join(self.checkpoint_dir, self.chkpt_name))
+
 
 if __name__ == "__main__":
     pass
