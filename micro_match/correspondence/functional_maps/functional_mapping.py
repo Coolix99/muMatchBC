@@ -81,7 +81,7 @@ def spectral_functional(src, dst, k):
 
 def superOperatorPromotion(A, n):
     r, c = A.shape
-    B = lil_matrix((r * n, c * n), dtype=np.float)
+    B = lil_matrix((r * n, c * n), dtype=np.float32)
     for i in range(r * n):
         for k in range(c):
             j = k * n + i % n
@@ -109,8 +109,8 @@ def initialisation(src, dst, k):
 def correspondenceMatrixSolver(src, dst, k, optimise=True):
     # Setting up
     f, df = spectral_functional(src, dst, k)
-    fun = lambda x: np.asarray(f(x.reshape(k, k)), dtype=np.float64)
-    jac = lambda x: np.asarray(df(x.reshape(k, k)), dtype=np.float64).flatten()
+    fun = lambda x: np.asarray(f(x.reshape(k, k)), dtype=np.float3264)
+    jac = lambda x: np.asarray(df(x.reshape(k, k)), dtype=np.float3264).flatten()
     # Initial guess
     C = initialisation(src, dst, k)
     if optimise:
