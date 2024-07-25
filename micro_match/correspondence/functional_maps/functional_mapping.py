@@ -109,8 +109,8 @@ def initialisation(src, dst, k):
 def correspondenceMatrixSolver(src, dst, k, optimise=True):
     # Setting up
     f, df = spectral_functional(src, dst, k)
-    fun = lambda x: np.asarray(f(x.reshape(k, k)), dtype=np.float3264)
-    jac = lambda x: np.asarray(df(x.reshape(k, k)), dtype=np.float3264).flatten()
+    fun = lambda x: np.asarray(f(x.reshape(k, k)), dtype=np.float32)
+    jac = lambda x: np.asarray(df(x.reshape(k, k)), dtype=np.float32).flatten()
     # Initial guess
     C = initialisation(src, dst, k)
     if optimise:
