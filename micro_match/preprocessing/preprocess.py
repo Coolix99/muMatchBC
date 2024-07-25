@@ -50,10 +50,10 @@ def batch_preprocess(dir_in, dir_out, config):
         if config["clean"]:
             mesh = clean_mesh(mesh)
         while mesh.nvertices < target_size:
-            mesh.subdivide(N=1, method=0)
+            mesh.subdivide(n=1, method=0)
+        mesh.decimate(n=target_size)
         mesh.decimate(n=target_size)
         mesh.write(fout)
-
     print("\n" + 60 * "-")
     print("Calculating geodesic matrices")
     print(60 * "-" + "\n")
@@ -62,11 +62,10 @@ def batch_preprocess(dir_in, dir_out, config):
         fgeo = os.path.join(dirs["geodesic_matrices"], fn + ".npy")
         if os.path.exists(fgeo):
             continue
-        try:
-            mesh = loader(fn)
-            np.save(fgeo, mesh.g)
-        except Exception:
-            print(f"Geodesic matrix error with: {fn}")
+ 
+        mesh = loader(fn)
+        np.save(fgeo, mesh.g)
+
 
     print("\n" + 60 * "-")
     print("Calculating Laplacian eigendecomposition")
@@ -76,17 +75,16 @@ def batch_preprocess(dir_in, dir_out, config):
 
     for fn in tqdm(files):
         feigen = os.path.join(dirs["eigen"], fn + ".npz")
-        try:
-            mesh = loader(fn)
-            evals, evecs = mesh.eigen
-            evecs_t = np.transpose(mesh.mass @ evecs)
-            sizes.append(mesh.num_vertices())
-            minima.append(1e-2 + evals[0 < evals].min())
-            maxima.append(evals.max())
-            if not os.path.exists(feigen):
-                np.savez(feigen, evals=evals, evecs=evecs, evecs_t=evecs_t)
-        except Exception as err:
-            print(f"{fn} Eigen-decomposition error : {err}")
+
+        mesh = loader(fn)
+        evals, evecs = mesh.eigen
+        evecs_t = np.transpose(mesh.mass @ evecs)
+        sizes.append(mesh.num_vertices())
+        minima.append(1e-2 + evals[0 < evals].min())
+        maxima.append(evals.max())
+        if not os.path.exists(feigen):
+            np.savez(feigen, evals=evals, evecs=evecs, evecs_t=evecs_t)
+
 
     emin = float(min(minima))
     emax = float(max(maxima))
@@ -105,12 +103,11 @@ def batch_preprocess(dir_in, dir_out, config):
         fsigs = os.path.join(dirs["signatures"], fn + ".npy")
         if os.path.exists(fsigs):
             continue
-        try:
-            mesh = loader(fn)
-            signatures = descriptor(mesh)
-            np.save(fsigs, signatures)
-        except Exception:
-            print(f"Signature function error with {fn}: skipping.")
+       
+        mesh = loader(fn)
+        signatures = descriptor(mesh)
+        np.save(fsigs, signatures)
+        
 
     print("\n\n" + "Preprocessing complete." + "\n\n")
     return

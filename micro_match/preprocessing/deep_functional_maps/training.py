@@ -25,15 +25,22 @@ class EnsembleTrainer:
         self.chkpt_name = chkpt_name
 
     def train_step(self, x, y):
+        # Extract components from x and y
         e_x, et_x, s_x, g_x = x["evecs"], x["evecs_t"], x["sigs"], x["metric"]
         e_y, et_y, s_y, g_y = y["evecs"], y["evecs_t"], y["sigs"], y["metric"]
+        
+        # Pass signatures through the network
         sigs = [self.func(s) for s in (s_x, s_y)]
+
         C = correspondenceMatrix(sigs, [et_x, et_y])
         P = softCorrespondenceEnsemble(C, et_x, e_y)
+        
         loss = geodesicErrorEnsemble(P, g_x, g_y)
+    
         self.optimiser.zero_grad()
         loss.backward()
         self.optimiser.step()
+        
         return loss
 
     def train(self, number_epochs):
@@ -41,6 +48,7 @@ class EnsembleTrainer:
         for epoch in range(number_epochs):
             loss = None  # Initialize loss variable
             for x, y in pairwise(self.dataloader):
+                loss = self.train_step(x, y)
                 try:
                     loss = self.train_step(x, y)
                 except Exception as e:

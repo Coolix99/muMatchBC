@@ -5,7 +5,7 @@ preprocessing:
     clean: false # manifold cleaning of the mesh
     number_hks: 0
     number_wks: 100
-    number_gaussian: 18
+    number_gaussian: 17
     deep_functional_maps:
         learning_rate: 0.001
         batch_size: 1

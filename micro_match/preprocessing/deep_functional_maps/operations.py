@@ -12,11 +12,20 @@ class ResidualLayer(nn.Module):
         self.batch2 = nn.BatchNorm1d(dim)
 
     def forward(self, x):
+        assert self.dim == x.shape[-1], f"Expected input with {self.dim} features, got {x.shape[-1]}"
         y = self.dense1(x)
+        # Transpose the last dimension to the second dimension for BatchNorm1d
+        y = y.permute(0, 2, 1)
         y = self.batch1(y)
+        # Transpose back
+        y = y.permute(0, 2, 1)
         y = F.relu(y)
         y = self.dense2(y)
+        # Transpose the last dimension to the second dimension for BatchNorm1d
+        y = y.permute(0, 2, 1)
         y = self.batch2(y)
+        # Transpose back
+        y = y.permute(0, 2, 1)
         y += x
         return F.relu(y)
 
@@ -28,15 +37,17 @@ class ResidualNet(nn.Module):
         )
 
     def forward(self, x):
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
             x = layer(x)
         return x
 
 def solve_lstsq(A, B):
     At = A.transpose(1, 2)
     Bt = B.transpose(1, 2)
-    Ct, _ = torch.lstsq(Bt, At)
-    C = Ct.transpose(1, 2)
+    
+    result = torch.linalg.lstsq(At, Bt)
+
+    C = result.solution.transpose(1, 2)
     return C
 
 def correspondenceMatrix(sigs, evecs_t):
