@@ -49,7 +49,7 @@ def batch_preprocess(dir_in, dir_out, config):
         mesh = vp.load(fin)
         if config["clean"]:
             mesh = clean_mesh(mesh)
-        while mesh.N() < target_size:
+        while mesh.nvertices() < target_size:
             mesh.subdivide(N=1, method=0)
         mesh.decimate(N=target_size)
         mesh.write(fout)
