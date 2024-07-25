@@ -11,7 +11,7 @@ from . import feature_descriptors as fd
 
 
 def clean_mesh(vedo_mesh: vMesh):
-    v, f = vedo_mesh.points(), np.asarray(vedo_mesh.faces())
+    v, f = vedo_mesh.vertices, np.asarray(vedo_mesh.cells)
     meshfix = pymeshfix.MeshFix(v, f)
     meshfix.repair()
     return vp.Mesh([meshfix.v, meshfix.f])
@@ -49,9 +49,9 @@ def batch_preprocess(dir_in, dir_out, config):
         mesh = vp.load(fin)
         if config["clean"]:
             mesh = clean_mesh(mesh)
-        while mesh.nvertices() < target_size:
+        while mesh.nvertices < target_size:
             mesh.subdivide(N=1, method=0)
-        mesh.decimate(N=target_size)
+        mesh.decimate(n=target_size)
         mesh.write(fout)
 
     print("\n" + 60 * "-")

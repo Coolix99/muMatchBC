@@ -18,9 +18,9 @@ memory = Memory(location=".joblib_cache", verbose=0)
 
 
 def readMesh(fn, normalise=False):
-    mesh = vp.load(fn)
-    v = mesh.points().copy().astype(np.double)
-    f = np.asarray(mesh.faces())
+    mesh:vp.Mesh = vp.load(fn)
+    v = mesh.vertices.copy().astype(np.double)
+    f = np.asarray(mesh.cells)
     if normalise:
         v -= np.mean(v, axis=0)
         v /= math.sqrt(area(v, f))
@@ -157,7 +157,7 @@ def vedo_decimate(v, f, N=None, frac=None):
         raise ValueError
 
     vedo_mesh.decimate(**args)
-    u, f = vedo_mesh.points(), np.asarray(vedo_mesh.faces())
+    u, f = vedo_mesh.vertices, np.asarray(vedo_mesh.cells)
     d = differenceMatrix(v, u)
     idx = d.argmin(axis=-1)
     return True, u, f, None, idx
@@ -168,7 +168,7 @@ def vedo_subdivide(v, f, N=1, method=0):
 
     vedo_mesh = vp.Mesh([v, f])
     vedo_mesh.subdivide(N=N, method=method)
-    u, f = vedo_mesh.points(), np.asarray(vedo_mesh.faces())
+    u, f = vedo_mesh.vertices, np.asarray(vedo_mesh.cells)
     d = differenceMatrix(v, u)
     idx = d.argmin(axis=-1)
     return u, f, idx
@@ -324,7 +324,7 @@ def extrapolate_scalars(
 
 
 def sign(x):
-    return 1 - 2 * np.asarray(x < 0).astype(np.int)
+    return 1 - 2 * np.asarray(x < 0).astype(np.int64)
 
 
 def safe_divide(x, y, eps=1e-9):
