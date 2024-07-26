@@ -200,14 +200,14 @@ def run_microMatch(
         checkpoint_dir = os.path.join(data_dir, "checkpoints")
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-        if not os.path.exists(os.path.join(checkpoint_dir, dataset_id)):
-            os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-            optimise_signatures.process_directory(
-                data_dir=data_dir,
-                checkpoint_dir=checkpoint_dir,
-                config=config["preprocessing"],
-                mesh_type=dataset_id,
-            )
+        
+        os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+        optimise_signatures.process_directory(
+            data_dir=data_dir,
+            checkpoint_dir=checkpoint_dir,
+            config=config["preprocessing"],
+            mesh_type=dataset_id,
+        )
 
     # Mesh correspondence
     match_dir = os.path.join(data_dir, "match_results")

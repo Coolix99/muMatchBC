@@ -8,14 +8,17 @@ from .training import EnsembleTrainer
 
 def process_directory(data_dir, checkpoint_dir, config, mesh_type):
     num_signatures = sum(config[f"number_{s}"] for s in ["hks", "wks", "gaussian"])
-    num_vertices = int(0.95 * config["number_vertices"])
-    number_epochs = config["deep_functional_maps"]["epochs"]
-    lr, bs = [config["deep_functional_maps"][k] for k in ["learning_rate", "batch_size"]]
 
-    dataset = generate_TFRecord(data_dir, num_vertices, mesh_type)
+    if not os.path.exists(os.path.join(checkpoint_dir, mesh_type)):
 
-    trainer = EnsembleTrainer(dataset, num_signatures, lr, bs, checkpoint_dir, mesh_type)
-    trainer.train(number_epochs)
+        num_vertices = int(0.95 * config["number_vertices"])
+        number_epochs = config["deep_functional_maps"]["epochs"]
+        lr, bs = [config["deep_functional_maps"][k] for k in ["learning_rate", "batch_size"]]
+
+        dataset = generate_TFRecord(data_dir, num_vertices, mesh_type)
+
+        trainer = EnsembleTrainer(dataset, num_signatures, lr, bs, checkpoint_dir, mesh_type)
+        trainer.train(number_epochs)
 
     predictor = DfmPredictor(mesh_type, num_signatures, checkpoint_dir)
     dir_sigs = os.path.join(data_dir, "signatures")
