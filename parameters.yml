@@ -1,9 +1,9 @@
 ---
 preprocessing:
-    number_vertices: 1800 # default range is 1000 - 5000.
-    functional_dimension: 100 # default range is 75 - 150
+    number_vertices: 1802 # default range is 1000 - 5000.
+    functional_dimension: 101 # default range is 75 - 150
     clean: false # manifold cleaning of the mesh
-    number_hks: 0
+    number_hks: 1
     number_wks: 100
     number_gaussian: 17
     deep_functional_maps:

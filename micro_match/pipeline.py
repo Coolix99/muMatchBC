@@ -4,6 +4,8 @@ from typing import Dict, List, Tuple
 
 import pandas as pd
 import yaml
+import hashlib
+import json
 
 from .correspondence.match import Match
 from .preprocessing.deep_functional_maps import optimise_signatures
@@ -100,6 +102,38 @@ def shape_analysis(data_dir, match_dir, dataset_id):
     clustering_analysis(classes, deviations, variant=dataset_id)
 
 
+def load_parameters(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+def save_parameters(file_path, parameters):
+    with open(file_path, 'w') as file:
+        json.dump(parameters, file, indent=4)
+
+def calculate_hash(parameters):
+    return hashlib.md5(json.dumps(parameters, sort_keys=True).encode('utf-8')).hexdigest()
+
+def check_and_clear_cache(cache_dir, parameters):
+    params_file = os.path.join(cache_dir, 'parameters.json')
+    current_hash = calculate_hash(parameters)
+    
+    if os.path.exists(params_file):
+        saved_params = load_parameters(params_file)
+        saved_hash = calculate_hash(saved_params)
+        if current_hash != saved_hash:
+            print("Parameters have changed. Clearing cache.")
+            clear_cache(cache_dir)
+            save_parameters(params_file, parameters)
+        else:
+            print("Parameters have not changed. Using cached results.")
+    else:
+        save_parameters(params_file, parameters)
+        
+def clear_cache(cache_dir):
+    for root, dirs, files in os.walk(cache_dir):
+        for file in files:
+            os.remove(os.path.join(root, file))
+
 def run_microMatch(
     data_dir: str,
     mesh_pairs: List[Tuple[str, str]],
@@ -137,6 +171,13 @@ def run_microMatch(
     with open("parameters.yml") as file:
         config = yaml.safe_load(file)
 
+    raw_dir = os.path.join(data_dir, "raw")
+    processed_data_dir = os.path.join(data_dir, "processed_data")
+    if not os.path.exists(processed_data_dir):
+        os.makedirs(processed_data_dir)
+
+    
+
     # Preprocessing
     # * raw_dir should point to the folder containing the meshes that we wish to process.
     # * data_dir should point to where we want the processed data to be stored for later use.
@@ -145,6 +186,9 @@ def run_microMatch(
     data_dir = os.path.join(data_dir, "processed_data")
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
+
+    # Check and clear cache if parameters have changed
+    check_and_clear_cache(processed_data_dir, config)
 
     batch_preprocess(raw_dir, data_dir, config["preprocessing"])
 
@@ -156,13 +200,14 @@ def run_microMatch(
         checkpoint_dir = os.path.join(data_dir, "checkpoints")
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-        os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-        optimise_signatures.process_directory(
-            data_dir=data_dir,
-            checkpoint_dir=checkpoint_dir,
-            config=config["preprocessing"],
-            mesh_type=dataset_id,
-        )
+        if not os.path.exists(os.path.join(checkpoint_dir, dataset_id)):
+            os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+            optimise_signatures.process_directory(
+                data_dir=data_dir,
+                checkpoint_dir=checkpoint_dir,
+                config=config["preprocessing"],
+                mesh_type=dataset_id,
+            )
 
     # Mesh correspondence
     match_dir = os.path.join(data_dir, "match_results")
