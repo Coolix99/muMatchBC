@@ -150,6 +150,38 @@ def process_directory(data_dir, match_dir, display=False):
         average.v = v
         average.display(scalar=scalar)
 
+        from vedo import  Points, Plotter, Mesh
+        plotter = Plotter(title="Aligned Point Clouds", size=(1200, 800))
+        colors = ["red", "green", "blue"]  # List of colors for the meshes
+        
+        for idx, points in enumerate(point_clouds):
+            # Create vedo mesh from points and faces
+            faces = meshes[template_idx].f
+            mesh = Mesh([points, faces])
+            mesh.color(colors[idx % len(colors)])  # Assign different colors to each mesh
+            plotter += mesh
+        plotter.show()
+        
+        from vedo import dataurl
+        plotter = Plotter(title="Correspondence2", size=(1200, 800))
+        # Apply standard texture to the template mesh
+        textures_path = dataurl + 'textures/'
+        standard_texture = textures_path + 'bricks.jpg'
+        template_mesh = Mesh([point_clouds[template_idx], meshes[template_idx].f])
+        template_mesh.texture(standard_texture)
+        plotter += template_mesh
+
+        # Apply the same texture mapping to other meshes
+        for idx, points in enumerate(point_clouds):
+            if idx == template_idx:
+                continue
+            mesh=template_mesh.copy()
+            mesh.vertices=points
+            mesh.pos(idx * 1, 0, 0)
+            plotter += mesh
+        
+        plotter.show()
+
     return names, point_clouds
 
 

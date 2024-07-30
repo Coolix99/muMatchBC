@@ -64,7 +64,7 @@ if __name__ == "__main__":
     
     run_microMatch(
         data_dir=str(example_data_dir),
-        mesh_pairs=[("mesh0", "mesh1"), ("mesh0", "mesh2")],
+        mesh_pairs=[("20240421mAG-zGemH2a-mcherry78hpfLM6nucleisurface", "20240422mAG-zGemH2a-mcherry96hpfLM5nucleisurface"), ("20240421mAG-zGemH2a-mcherry78hpfLM6nucleisurface", "20240428mAG-zGemH2a-mcherry144hpfControl4nucleisurface")],
         dataset_id="bunny",
         use_deep_learning=True
     )

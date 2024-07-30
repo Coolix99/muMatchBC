@@ -33,8 +33,11 @@ def compute_correspondence(src, dst, config):
         k=config["initial_solve_dimension"],
         optimise=config["symmetry_optimisation"],
     )
+    print('hey',C.shape)
     C = zo.zoomout_refinement(src, dst)(C)
+    print('hey',C.shape)
     P = fm.soft_correspondence(src, dst, C)
+    print('hey',P.shape)
     assign = lambda x: linear_sum_assignment(x, maximize=True)
     i, j = pmf.product_manifold_filter_assignment(
         assign,
